@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knee Holding Programme · 7-day plan · 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e7ecea; --ink:#16242b; --muted:#5d6f77; --faint:#8a9aa0;
+    --surface:#ffffff; --line:#d8e1de;
+    --teal:#0f7d83; --teal-soft:#d6ecec; --teal-ink:#0a5b60;
+    --amber:#b3720a; --amber-soft:#f6e7ce;
+    --alert:#b23a32; --alert-soft:#f4dedb;
+    --shadow:0 1px 0 rgba(22,36,43,.04), 0 12px 30px -18px rgba(22,36,43,.35);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 20px}
+
+  /* fixed 3D canvas behind content */
+  #scene-canvas{position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none}
+  header.top, .controls, main, footer{position:relative; z-index:2}
+
+  header.top{padding:46px 0 30px; border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--teal-ink); margin:0 0 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}
+  h1{font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:clamp(30px,6vw,52px);
+    line-height:1.02; letter-spacing:-.02em; margin:0 0 16px; max-width:15ch}
+  h1 em{font-style:normal; color:var(--teal)}
+  .lede{font-size:clamp(15px,2.3vw,18px); color:var(--muted); max-width:62ch; margin:0}
+  .meta-row{display:flex; gap:26px; flex-wrap:wrap; margin-top:26px;
+    font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted)}
+  .meta-row b{color:var(--ink); font-weight:600}
+
+  .safety{margin:24px 0 6px; background:var(--surface); border:1px solid var(--line);
+    border-left:4px solid var(--alert); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow)}
+  .safety h2{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--alert); margin:0 0 10px}
+  .safety p{margin:0 0 8px; font-size:14.5px}
+  .safety .rule{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:16px; margin:2px 0 12px}
+  .stoplist{list-style:none; margin:6px 0 0; padding:0; display:grid; gap:6px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); font-size:14px; color:var(--muted)}
+  .stoplist li{display:flex; gap:9px; align-items:flex-start}
+  .stoplist .x{color:var(--alert); font-weight:700; line-height:1.4}
+
+  .controls{position:sticky; top:0; z-index:30; background:rgba(231,236,234,.9);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line); padding:12px 0; margin-top:30px}
+  .controls .wrap{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  .progress{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted)}
+  .progress b{color:var(--teal-ink)}
+  .bar{height:6px; background:var(--line); border-radius:99px; flex:1; min-width:120px; overflow:hidden}
+  .bar > i{display:block; height:100%; width:0; background:var(--teal); transition:width .3s ease}
+  button.ghost{font-family:"IBM Plex Mono",monospace; font-size:12.5px; letter-spacing:.04em;
+    border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    padding:8px 14px; border-radius:99px; cursor:pointer; transition:.15s}
+  button.ghost:hover{border-color:var(--teal); color:var(--teal-ink)}
+  button.ghost:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+
+  /* sections */
+  section.block{padding:38px 0 6px}
+  .block-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px; flex-wrap:wrap}
+  .block-tag{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; padding:4px 10px; border-radius:6px; background:var(--ink); color:#fff}
+  .block-head h3{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:24px; margin:0; letter-spacing:-.01em}
+  .block-note{font-size:14.5px; color:var(--muted); margin:8px 0 22px; max-width:70ch}
+
+  /* 7 day plan */
+  .week{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .day{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px;
+    box-shadow:var(--shadow); cursor:pointer; transition:.18s; display:flex; flex-direction:column; gap:8px}
+  .day:hover{transform:translateY(-2px)}
+  .day.done{border-color:var(--teal); background:linear-gradient(180deg,#f3faf9,#fff)}
+  .day .dnum{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--faint); letter-spacing:.1em; display:flex; justify-content:space-between; align-items:center}
+  .day .tick{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--faint); display:grid;place-items:center; color:#fff; font-size:12px}
+  .day.done .tick{background:var(--teal); border-color:var(--teal)}
+  .day h4{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:17px; margin:2px 0 0}
+  .day .dtag{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--teal-ink);
+    background:var(--teal-soft); padding:3px 8px; border-radius:6px; align-self:flex-start}
+  .day p{font-size:13px; color:var(--muted); margin:2px 0 0}
+  .day.light .dtag{background:var(--amber-soft); color:var(--amber)}
+
+  /* phase subheads in library */
+  .phase-head{display:flex; align-items:baseline; gap:12px; margin:26px 0 16px; flex-wrap:wrap}
+  .phase-tag{font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.16em;
+    text-transform:uppercase; padding:4px 10px; border-radius:6px}
+  .phase-tag.wu{background:var(--teal-soft); color:var(--teal-ink)}
+  .phase-tag.st{background:var(--teal); color:#fff}
+  .phase-tag.cd{background:var(--amber-soft); color:var(--amber)}
+  .phase-head h4{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:19px; margin:0}
+
+  .grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .card{background:transparent; border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    box-shadow:var(--shadow); display:flex; flex-direction:column; transition:border-color .2s}
+  .card.done{border-color:var(--teal)}
+  .fig-stage{position:relative; height:215px; background:transparent}
+  .fig-fallback{position:absolute; inset:0; display:grid; place-items:center; color:var(--faint);
+    font-family:"IBM Plex Mono",monospace; font-size:12px; background:linear-gradient(180deg,#eef3f1,#e4ebe8)}
+  .code-chip{position:absolute; top:10px; left:10px; z-index:3; font-family:"IBM Plex Mono",monospace;
+    font-size:11px; letter-spacing:.06em; background:var(--ink); color:#fff; padding:3px 8px; border-radius:6px}
+  .hold-chip{position:absolute; top:10px; right:10px; z-index:3; font-family:"IBM Plex Mono",monospace;
+    font-size:11px; letter-spacing:.1em; background:var(--amber-soft); color:var(--amber);
+    padding:3px 8px; border-radius:6px; border:1px solid #e6cfa3}
+  .card-body{padding:16px 18px 18px; display:flex; flex-direction:column; gap:10px; flex:1; background:var(--surface)}
+  .card-body h4{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:18px; margin:0; letter-spacing:-.01em}
+  .dose{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--teal-ink);
+    background:var(--teal-soft); display:inline-block; padding:4px 9px; border-radius:6px; align-self:flex-start}
+  .cue{font-size:13.5px; color:var(--ink); font-weight:500; margin:0}
+  .cue .lbl{color:var(--teal); font-weight:600}
+  .detail{font-size:13.5px; color:var(--muted); margin:0}
+  .card-foot{margin-top:auto; padding-top:6px}
+  .check{width:100%; display:flex; align-items:center; gap:10px; cursor:pointer;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--muted);
+    background:none; border:1px dashed var(--line); border-radius:10px; padding:9px 12px; transition:.15s}
+  .check:hover{border-color:var(--teal); color:var(--teal-ink)}
+  .check:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+  .check .box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--faint);
+    display:grid;place-items:center; flex:none; transition:.15s; color:#fff; font-size:12px}
+  .card.done .check{border-style:solid; border-color:var(--teal); color:var(--teal-ink)}
+  .card.done .check .box{background:var(--teal); border-color:var(--teal)}
+
+  footer{border-top:1px solid var(--line); margin-top:46px; padding:30px 0 60px}
+  footer p{font-size:13.5px; color:var(--muted); max-width:72ch; margin:0 0 10px}
+  footer .sig{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--faint); letter-spacing:.08em}
+
+  @media (max-width:520px){ header.top{padding:34px 0 24px} .meta-row{gap:16px} }
+</style>
+</head>
+<body>
+
+<canvas id="scene-canvas"></canvas>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow"><span class="dot"></span> Knee programme · 3D demos · 7-day plan · no equipment</p>
+    <h1>Keep the knee <em>switched on</em> until your surgeon sees it.</h1>
+    <p class="lede">A gentle holding routine for a suspected meniscus or ACL injury. Low-impact, equipment-free, and limited to the safe staples that calm a knee and keep the surrounding muscles working — nothing that loads or twists an unstable joint. Each demo shows a 3D body performing the move, with the working muscle highlighted.</p>
+    <div class="meta-row">
+      <span><b>~15–18 min</b> · most days</span>
+      <span><b>11 movements</b> · warm-up → strengthen → cool-down</span>
+      <span>Review end of July</span>
+    </div>
+
+    <div class="safety">
+      <h2>Read first — the pain rule</h2>
+      <p class="rule">Stay at or below 3–4 / 10 discomfort. Mild ache is fine; sharp pain is a stop sign.</p>
+      <p>Move slowly and within a comfortable range. If a movement hurts, shrink the range or skip it. Stop the session and speak to a clinician before resuming if you notice any of these:</p>
+      <ul class="stoplist">
+        <li><span class="x">✕</span> Sharp or stabbing knee pain</li>
+        <li><span class="x">✕</span> The knee locking or catching</li>
+        <li><span class="x">✕</span> A sense of the knee giving way</li>
+        <li><span class="x">✕</span> New or increasing swelling</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="wrap">
+    <span class="progress"><b id="doneCount">0</b> / 11 movements ticked</span>
+    <span class="bar"><i id="barFill"></i></span>
+    <button class="ghost" id="animToggle" aria-pressed="false">⏸ Pause demos</button>
+    <button class="ghost" id="resetBtn">Reset</button>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="block">
+    <div class="block-head"><span class="block-tag">The week</span><h3>Your 7-day plan</h3></div>
+    <p class="block-note">Same core routine most days, with the emphasis rotating and two deliberately lighter days so the knee gets recovery. Never push an emphasis into pain — it just means an extra set or a little more attention on those movements. Tap a day to mark it done.</p>
+    <div class="week" id="week"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="block-tag">The routine</span><h3>The 11 movements</h3></div>
+    <p class="block-note">This is the full daily session. On lighter days do only the warm-up, the isometrics (quad sets, heel slides) and the cool-down stretches.</p>
+    <div id="library"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>This is general guidance, not a diagnosis or a prescription.</strong> The movements and doses are conservative starting points used to settle a knee before assessment — not tailored to your specific injury, which only an examination (and likely a scan) can confirm. A torn meniscus and a torn ACL want slightly different things, so treat this as a bridge. Once your surgeon assesses you, the real rehab plan will look different; let their guidance override this.</p>
+    <p>If pain, swelling, or instability is worsening rather than holding steady before end of July, get assessed sooner rather than waiting.</p>
+    <p class="sig">3D MOVEMENT STUDY · the working muscle is shown in teal · amber marks a timed hold</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const EX = [
+  {code:"WU-01", name:"Ankle pumps", phase:"wu", orient:"supine", active:["footR","shinR","footL","shinL"],
+    dose:"2 × 15 each way · slow", cue:"Point and flex the foot, big slow range.",
+    detail:"Lie or sit with the leg straight. Pump the foot up and down at the ankle. Wakes up circulation and the calf — no knee movement needed.",
+    move:(f,s)=>{const a=lerp(-0.5,0.6,s); f.ankle('R',a); f.ankle('L',a);} },
+
+  {code:"WU-02", name:"Heel slides", phase:"wu", orient:"supine", active:["thighR","shinR"],
+    dose:"2 × 10 · pain-free range only", cue:"Slide the heel toward you, then back.",
+    detail:"Lying down, slowly drag the heel up so the knee bends, then straighten. Restores gentle bend — go only as far as is comfortable.",
+    move:(f,s)=>{ f.knee('R',lerp(0,1.5,s)); f.hipFlex('R',0.18*s); } },
+
+  {code:"ST-01", name:"Quad sets", phase:"st", orient:"supine", active:["thighR"], pulse:true,
+    dose:"3 × 8 · hold 5s", cue:"Tighten the thigh, press the knee down.",
+    detail:"Leg straight. Squeeze the thigh to press the back of the knee gently into the floor. Hold, then relax. The single most important early exercise — it stops the quad switching off.",
+    move:(f,s)=>{ f.knee('R',lerp(0,-0.05,s)); } },
+
+  {code:"ST-02", name:"Straight leg raise", phase:"st", orient:"supine", active:["thighR","shinR"],
+    dose:"3 × 10 · lift to ~30°, hold 2s", cue:"Keep the knee locked straight, lift.",
+    detail:"Tighten the thigh first, then raise the whole straight leg about 30°. Lower slowly. Builds quad strength with zero bend at the knee.",
+    move:(f,s)=>{ f.hipFlex('R',lerp(0,0.62,s)); } },
+
+  {code:"ST-03", name:"Glute bridge", phase:"st", orient:"supine", active:["pelvis","thighR","thighL"],
+    dose:"3 × 10 · squeeze, hold 3s", cue:"Drive through the heels, lift the hips.",
+    detail:"Knees bent, feet flat. Squeeze the glutes and lift the hips into a straight line, then lower. Strong glutes take load off the knee.",
+    move:(f,s)=>{ f.knee('R',1.15); f.knee('L',1.15); f.hipFlex('R',0.55-0.3*s); f.hipFlex('L',0.55-0.3*s); f.root.position.y = ORIENT.supine.base.baseY + 0.18*s; } },
+
+  {code:"ST-04", name:"Clamshell", phase:"st", orient:"supine", active:["thighR"],
+    dose:"2 × 12 each side · hips still", cue:"Open the top knee, keep feet together.",
+    detail:"Side-lying, knees bent and stacked. Open the top knee like a clam while keeping the pelvis still. Targets the outer hip that stabilises the knee.",
+    move:(f,s)=>{ f.knee('R',1.0); f.knee('L',1.0); f.hipFlex('R',0.5); f.hipFlex('L',0.5); f.hipAbd('R',lerp(0,0.6,s)); } },
+
+  {code:"ST-05", name:"Standing hip abduction", phase:"st", orient:"stand", active:["thighR","shinR"],
+    dose:"2 × 12 each leg · stay tall", cue:"Lift the leg out to the side, don't lean.",
+    detail:"Stand tall (hold a wall for balance). Raise one straight leg out to the side and lower with control, torso upright. More outer-hip stability for the knee.",
+    move:(f,s)=>{ f.hipAbd('R',lerp(0,0.5,s)); } },
+
+  {code:"ST-06", name:"Standing calf raise", phase:"st", orient:"standSide", active:["shinR","footR","shinL","footL"],
+    dose:"2 × 15 · slow up, slow down", cue:"Rise onto the toes, lower with control.",
+    detail:"Stand tall, feet hip-width, hand on a wall. Push up onto the balls of both feet, pause, then lower slowly. Builds calf support around the knee and ankle.",
+    move:(f,s)=>{ f.ankle('R',0.5*s); f.ankle('L',0.5*s); f.root.position.y = 0.05*s; } },
+
+  {code:"ST-07", name:"Standing hamstring curl", phase:"st", orient:"standSide", active:["thighR","shinR"],
+    dose:"2 × 12 each leg · curl heel up", cue:"Bend the knee, bring the heel toward the hip.",
+    detail:"Stand tall holding support. Bend one knee to draw the heel up behind you, keeping thighs level, then lower. Wakes up the hamstrings, which protect the ACL.",
+    move:(f,s)=>{ f.knee('R',lerp(0,1.4,s)); } },
+
+  {code:"CD-01", name:"Quad stretch", phase:"cd", orient:"stand", hold:"HOLD 30s", active:["thighR"],
+    dose:"Hold 30s × 2 each leg", cue:"Heel toward the buttock, knees together.",
+    detail:"Stand tall holding support. Bend one knee and gently draw the heel toward the buttock until you feel a light stretch at the front of the thigh. Easy, no bouncing.",
+    move:(f,s)=>{ f.knee('R',lerp(1.9,2.15,s)); f.hipFlex('R',-0.1); f.shoulders.R.rotation.x=0.9; f.elbow('R',1.0); } },
+
+  {code:"CD-02", name:"Calf stretch", phase:"cd", orient:"lean", hold:"HOLD 30s", active:["shinL"],
+    dose:"Hold 30s × 2 each leg", cue:"Back heel down, lean into the wall.",
+    detail:"Hands on a wall, one foot back with the leg straight and heel pressed down, front knee bent. Lean in gently until you feel a stretch in the back calf. Hold and breathe.",
+    move:(f,s)=>{ f.spineFlex(lerp(0.3,0.42,s)); f.hipFlex('L',-0.18); f.hipFlex('R',0.32); f.knee('R',0.55);
+      f.shoulders.R.rotation.x=-1.4; f.shoulders.L.rotation.x=-1.4; } }
+];
+
+const PHASES=[
+  {key:"wu",tag:"WARM-UP",name:"Warm-up"},
+  {key:"st",tag:"STRENGTHEN",name:"Strengthen"},
+  {key:"cd",tag:"COOL-DOWN",name:"Cool-down"}
+];
+
+const DAYS=[
+  {d:1,title:"Find your range",tag:"Full · easy",detail:"Run the full routine once at an easy pace, lower end of each rep range. Note what feels fine and what doesn't."},
+  {d:2,title:"Quad wake-up",tag:"Full + quad",detail:"Full routine. Add one extra set of quad sets and straight-leg raises — these matter most for the knee."},
+  {d:3,title:"Easy day",tag:"Light",light:true,detail:"Warm-up, quad sets, heel slides and both cool-down stretches only. Let the knee settle."},
+  {d:4,title:"Steady routine",tag:"Full",detail:"The complete routine at your normal pace. Smooth, controlled reps throughout."},
+  {d:5,title:"Hips & glutes",tag:"Full + hips",detail:"Full routine. Add a set of glute bridges, clamshells and standing hip abduction — the muscles that steady the knee."},
+  {d:6,title:"Easy day",tag:"Light",light:true,detail:"Warm-up, gentle isometrics and stretches. Add slow single-leg balance holds at a counter if comfortable."},
+  {d:7,title:"Full + review",tag:"Full + log",detail:"Full routine, then note how the week went: pain trend, swelling, stiffness, anything that locked or gave way. Bring it to your surgeon."}
+];
+
+/* =========================================================
+   RENDER PAGE
+========================================================= */
+function lerp(a,b,t){return a+(b-a)*t;}
+
+const week=document.getElementById('week');
+DAYS.forEach(day=>{
+  const el=document.createElement('div');
+  el.className='day'+(day.light?' light':'');
+  el.innerHTML=`<div class="dnum"><span>DAY ${String(day.d).padStart(2,'0')}</span><span class="tick">✓</span></div>
+    <span class="dtag">${day.tag}</span>
+    <h4>${day.title}</h4>
+    <p>${day.detail}</p>`;
+  el.addEventListener('click',()=>el.classList.toggle('done'));
+  week.appendChild(el);
+});
+
+const library=document.getElementById('library');
+PHASES.forEach(ph=>{
+  const head=document.createElement('div');
+  head.className='phase-head';
+  head.innerHTML=`<span class="phase-tag ${ph.key}">${ph.tag}</span><h4>${ph.name}</h4>`;
+  library.appendChild(head);
+  const grid=document.createElement('div'); grid.className='grid';
+  EX.filter(e=>e.phase===ph.key).forEach(ex=>{
+    const card=document.createElement('article');
+    card.className='card'; card.dataset.code=ex.code;
+    card.innerHTML=`
+      <div class="fig-stage" data-code="${ex.code}">
+        <div class="fig-fallback">3D demo</div>
+        <span class="code-chip">${ex.code}</span>
+        ${ex.hold?`<span class="hold-chip">${ex.hold}</span>`:''}
+      </div>
+      <div class="card-body">
+        <h4>${ex.name}</h4>
+        <span class="dose">${ex.dose}</span>
+        <p class="cue"><span class="lbl">Cue · </span>${ex.cue}</p>
+        <p class="detail">${ex.detail}</p>
+        <div class="card-foot">
+          <button class="check" type="button" aria-pressed="false">
+            <span class="box">✓</span><span class="lbl-text">Mark done</span>
+          </button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  library.appendChild(grid);
+});
+
+/* progress + checks */
+const total=EX.length, doneSet=new Set();
+const doneCountEl=document.getElementById('doneCount'), barFill=document.getElementById('barFill');
+function refresh(){ doneCountEl.textContent=doneSet.size; barFill.style.width=(doneSet.size/total*100)+'%'; }
+document.querySelectorAll('.card').forEach(card=>{
+  const btn=card.querySelector('.check'), code=card.dataset.code;
+  btn.addEventListener('click',()=>{
+    const on=card.classList.toggle('done'); btn.setAttribute('aria-pressed',on);
+    btn.querySelector('.lbl-text').textContent=on?'Done':'Mark done';
+    on?doneSet.add(code):doneSet.delete(code); refresh();
+  });
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  doneSet.clear();
+  document.querySelectorAll('.card.done').forEach(c=>{c.classList.remove('done');
+    const b=c.querySelector('.check'); b.setAttribute('aria-pressed','false'); b.querySelector('.lbl-text').textContent='Mark done';});
+  document.querySelectorAll('.day.done').forEach(d=>d.classList.remove('done'));
+  refresh();
+});
+
+/* =========================================================
+   THREE.JS  — single renderer, many viewports
+========================================================= */
+const ORIENT={
+  supine:{ base:{rx:-Math.PI/2, baseY:0.12, z:0.30}, cam:{pos:[2.9,1.55,-0.05], tgt:[0,0.12,-0.05]} },
+  stand:{ base:{baseY:0}, cam:{pos:[1.7,1.0,2.7], tgt:[0,0.78,0]}, yaw:0.25 },
+  standSide:{ base:{baseY:0}, cam:{pos:[2.85,0.95,0.5], tgt:[0,0.72,0]} },
+  lean:{ base:{baseY:0}, cam:{pos:[2.5,1.05,2.2], tgt:[0.15,0.6,0]}, yaw:0.12 }
+};
+
+let renderer, scenes=[], paused=false, clock;
+
+function makeHuman(active, pulse){
+  const root=new THREE.Group();
+  const skin=()=>new THREE.MeshStandardMaterial({color:0xb7c3c8, roughness:.85, metalness:.05});
+  const parts={};
+  function seg(len,rT,rB){
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(rT,rB,len,14), skin());
+    m.position.y=-len/2; const g=new THREE.Group(); g.add(m);
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(rB*1.05,12,12), m.material));
+    g.userData.mat=m.material; return g;
+  }
+  const body=new THREE.Group(); body.position.y=0.84; root.add(body);
+  const pelvis=new THREE.Group(); body.add(pelvis);
+  const pel=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.16,0.18), skin()); pelvis.add(pel); parts.pelvis=pel.material;
+  const chest=new THREE.Group(); pelvis.add(chest);
+  const torso=new THREE.Mesh(new THREE.CylinderGeometry(0.115,0.145,0.5,16), skin()); torso.position.y=0.27; chest.add(torso); parts.chest=torso.material;
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.08,10), skin()); neck.position.y=0.55; chest.add(neck);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.13,18,18), skin()); head.position.y=0.68; chest.add(head);
+
+  const shoulders={}, elbows={}, hips={}, knees={}, ankles={};
+  [['R',1],['L',-1]].forEach(([s,sx])=>{
+    const sh=new THREE.Group(); sh.position.set(0.17*sx,0.48,0); chest.add(sh);
+    const up=seg(0.3,0.05,0.045); sh.add(up);
+    const el=new THREE.Group(); el.position.y=-0.3; up.add(el);
+    el.add(seg(0.27,0.04,0.035)); shoulders[s]=sh; elbows[s]=el;
+  });
+  [['R',1],['L',-1]].forEach(([s,sx])=>{
+    const hip=new THREE.Group(); hip.position.set(0.1*sx,-0.02,0); pelvis.add(hip);
+    const thigh=seg(0.42,0.08,0.066); hip.add(thigh); parts['thigh'+s]=thigh.userData.mat;
+    const knee=new THREE.Group(); knee.position.y=-0.42; thigh.add(knee);
+    const shin=seg(0.42,0.06,0.05); knee.add(shin); parts['shin'+s]=shin.userData.mat;
+    const ankle=new THREE.Group(); ankle.position.y=-0.42; shin.add(ankle);
+    const foot=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.06,0.22), skin()); foot.position.set(0,-0.03,0.07); ankle.add(foot); parts['foot'+s]=foot.material;
+    hips[s]=hip; knees[s]=knee; ankles[s]=ankle;
+  });
+
+  (active||[]).forEach(n=>{ const m=parts[n]; if(m){ m.color.set(0x0f7d83); m.emissive=new THREE.Color(0x0f7d83); m.emissiveIntensity=0.3; } });
+
+  const f={root,body,pelvis,chest,shoulders,elbows,hips,knees,ankles,parts,active:active||[],pulse:!!pulse};
+  f.reset=function(o){
+    for(const k in hips){hips[k].rotation.set(0,0,0);knees[k].rotation.set(0,0,0);ankles[k].rotation.set(0,0,0);}
+    for(const k in shoulders){shoulders[k].rotation.set(0,0,0);elbows[k].rotation.set(0,0,0);}
+    chest.rotation.set(0,0,0);
+    root.position.set(0,o.baseY||0,o.z||0); root.rotation.set(o.rx||0,o.ry||0,o.rz||0);
+  };
+  f.hipFlex=(s,a)=>hips[s].rotation.x=-a;
+  f.hipAbd=(s,a)=>hips[s].rotation.z=(s==='R'?a:-a);
+  f.knee=(s,a)=>knees[s].rotation.x=a;
+  f.ankle=(s,a)=>ankles[s].rotation.x=a;
+  f.elbow=(s,a)=>elbows[s].rotation.x=a;
+  f.spineFlex=(a)=>chest.rotation.x=-a;
+  return f;
+}
+
+function buildScene(ex){
+  const stageEl=document.querySelector(`.fig-stage[data-code="${ex.code}"]`);
+  const o=ORIENT[ex.orient];
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0xeef3f1);
+
+  const hemi=new THREE.HemisphereLight(0xffffff,0x9fb0ad,0.95); scene.add(hemi);
+  const dir=new THREE.DirectionalLight(0xffffff,0.7); dir.position.set(2,4,3); scene.add(dir);
+
+  // floor / mat
+  const floorMat=new THREE.MeshStandardMaterial({color:0xdfe7e4, roughness:1});
+  if(ex.orient==='supine'){
+    const mat=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.0), floorMat);
+    mat.rotation.x=-Math.PI/2; mat.position.set(0,0,0.1); scene.add(mat);
+  } else {
+    const fl=new THREE.Mesh(new THREE.CircleGeometry(1.3,40), floorMat);
+    fl.rotation.x=-Math.PI/2; scene.add(fl);
+    if(ex.orient==='lean'){
+      const wall=new THREE.Mesh(new THREE.PlaneGeometry(2,1.8), new THREE.MeshStandardMaterial({color:0xe4ebe8,roughness:1}));
+      wall.position.set(0.85,0.9,0); wall.rotation.y=-Math.PI/2; scene.add(wall);
+    }
+  }
+
+  const fig=makeHuman(ex.active, ex.pulse); scene.add(fig.root);
+
+  const cam=new THREE.PerspectiveCamera(32,1,0.1,50);
+  cam.position.set(...o.cam.pos); cam.lookAt(...o.cam.tgt);
+  cam.userData.tgt=o.cam.tgt;
+
+  const item={
+    elem:stageEl, scene, camera:cam, fallback:stageEl.querySelector('.fig-fallback'),
+    update(time){
+      const s=easeInOut(pingpong(time,2.6));
+      const ob=Object.assign({}, o.base);
+      if(o.yaw) ob.ry=(ob.ry||0)+Math.sin(time*0.5)*o.yaw;
+      fig.reset(ob);
+      ex.move(fig,s);
+      if(fig.pulse){ const p=0.15+0.7*s; fig.active.forEach(n=>{const m=fig.parts[n]; if(m) m.emissiveIntensity=p;}); }
+      cam.lookAt(...cam.userData.tgt);
+    }
+  };
+  item.fallback.style.display='none';
+  scenes.push(item);
+}
+
+function pingpong(t,period){ const p=(t%period)/period; return p<0.5? p*2 : (1-p)*2; }
+function easeInOut(x){ return x<0.5? 2*x*x : 1-Math.pow(-2*x+2,2)/2; }
+
+function initThree(){
+  const canvas=document.getElementById('scene-canvas');
+  try{
+    renderer=new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  }catch(e){ document.querySelectorAll('.fig-fallback').forEach(f=>f.style.display='grid'); return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setClearColor(0x000000,0);
+  clock=new THREE.Clock();
+  EX.forEach(buildScene);
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) setPaused(true);
+  animate();
+}
+
+let lastTime=0;
+function animate(){
+  requestAnimationFrame(animate);
+  const W=window.innerWidth, H=window.innerHeight;
+  if(renderer.domElement.width!==Math.floor(W*Math.min(devicePixelRatio,2))){
+    renderer.setSize(W,H,false);
+  }
+  const time = paused? lastTime : (lastTime=clock.getElapsedTime());
+  renderer.setScissorTest(false);
+  renderer.clear();
+  renderer.setScissorTest(true);
+  for(const it of scenes){
+    const r=it.elem.getBoundingClientRect();
+    if(r.bottom<0||r.top>H||r.right<0||r.left>W) continue;
+    const w=r.width, h=r.height, left=r.left, bottom=H-r.bottom;
+    renderer.setViewport(left,bottom,w,h);
+    renderer.setScissor(left,bottom,w,h);
+    it.camera.aspect=w/h; it.camera.updateProjectionMatrix();
+    it.update(time);
+    renderer.render(it.scene,it.camera);
+  }
+}
+
+function setPaused(p){
+  paused=p;
+  const t=document.getElementById('animToggle');
+  t.textContent=p?'▶ Play demos':'⏸ Pause demos'; t.setAttribute('aria-pressed',p);
+}
+document.getElementById('animToggle').addEventListener('click',()=>setPaused(!paused));
+
+refresh();
+if(window.THREE){ initThree(); } else {
+  window.addEventListener('load',()=>{ window.THREE? initThree() : document.querySelectorAll('.fig-fallback').forEach(f=>f.style.display='grid'); });
+}
+</script>
+</body>
+</html>

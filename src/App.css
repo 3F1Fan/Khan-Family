@@ -1,9 +1,27 @@
 .app {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* First section: the knee programme, embedded as its own document */
+.knee-section {
+  width: 100%;
+}
+
+.knee-frame {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  border: 0;
+}
+
+/* Liverpool crest section */
+.crest-section {
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 3rem 2rem;
 }
 
 .crest {
@@ -18,4 +36,5 @@
   font-size: 0.8rem;
   color: #888;
   font-variant-numeric: tabular-nums;
+  z-index: 10;
 }
