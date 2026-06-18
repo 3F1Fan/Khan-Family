@@ -3,11 +3,11 @@ import './App.css'
 export default function App() {
   return (
     <main className="app">
-      <h1>Khan Family</h1>
-      <p>Welcome to our family site. 🏡</p>
-      <p className="hint">
-        Edit <code>src/App.jsx</code> and push to deploy automatically.
-      </p>
+      <img
+        className="crest"
+        src="https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg"
+        alt="Liverpool FC crest"
+      />
     </main>
   )
 }
