@@ -193,6 +193,34 @@
   </div>
 </footer>
 
+<!-- Firebase (compat) — syncs knee-programme progress across devices -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  /* Firebase web config — paste the values from the Firebase console here.
+     While the placeholders (starting "__") remain, Firebase stays OFF and the
+     checklist works in-memory only, exactly as before. */
+  const FIREBASE_CONFIG = {
+    apiKey: "__FIREBASE_API_KEY__",
+    authDomain: "khan-family-786.firebaseapp.com",
+    projectId: "khan-family-786",
+    storageBucket: "khan-family-786.appspot.com",
+    messagingSenderId: "__SENDER_ID__",
+    appId: "__APP_ID__"
+  };
+  window.__KNEE_FB = null;
+  (function(){
+    try{
+      const ready = window.firebase && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("__") !== 0;
+      if(ready){
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.firestore();
+        window.__KNEE_FB = { db: db, ref: db.collection("progress").doc("knee") };
+      }
+    }catch(e){ console.warn("Firebase init skipped:", e); window.__KNEE_FB = null; }
+  })();
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* =========================================================
@@ -285,7 +313,12 @@ DAYS.forEach(day=>{
     <span class="dtag">${day.tag}</span>
     <h4>${day.title}</h4>
     <p>${day.detail}</p>`;
-  el.addEventListener('click',()=>el.classList.toggle('done'));
+  el.dataset.dnum=String(day.d);
+  el.addEventListener('click',()=>{
+    const k=el.dataset.dnum;
+    state.days.has(k)?state.days.delete(k):state.days.add(k);
+    applyState(); persist();
+  });
   week.appendChild(el);
 });
 
@@ -321,25 +354,53 @@ PHASES.forEach(ph=>{
   library.appendChild(grid);
 });
 
-/* progress + checks */
-const total=EX.length, doneSet=new Set();
+/* progress + checks — state-driven, synced via Firebase when configured */
+const total=EX.length;
+const state={ex:new Set(), days:new Set()};
 const doneCountEl=document.getElementById('doneCount'), barFill=document.getElementById('barFill');
-function refresh(){ doneCountEl.textContent=doneSet.size; barFill.style.width=(doneSet.size/total*100)+'%'; }
+
+function refresh(){ doneCountEl.textContent=state.ex.size; barFill.style.width=(state.ex.size/total*100)+'%'; }
+
+function applyState(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const on=state.ex.has(card.dataset.code);
+    card.classList.toggle('done',on);
+    const b=card.querySelector('.check');
+    b.setAttribute('aria-pressed',on);
+    b.querySelector('.lbl-text').textContent=on?'Done':'Mark done';
+  });
+  document.querySelectorAll('.day').forEach(d=>d.classList.toggle('done', state.days.has(d.dataset.dnum)));
+  refresh();
+}
+
+function persist(){
+  const fb=window.__KNEE_FB; if(!fb) return;
+  fb.ref.set({exercises:[...state.ex], days:[...state.days], updated:Date.now()},{merge:true})
+    .catch(e=>console.warn('Knee progress save failed:',e));
+}
+
 document.querySelectorAll('.card').forEach(card=>{
-  const btn=card.querySelector('.check'), code=card.dataset.code;
-  btn.addEventListener('click',()=>{
-    const on=card.classList.toggle('done'); btn.setAttribute('aria-pressed',on);
-    btn.querySelector('.lbl-text').textContent=on?'Done':'Mark done';
-    on?doneSet.add(code):doneSet.delete(code); refresh();
+  const code=card.dataset.code;
+  card.querySelector('.check').addEventListener('click',()=>{
+    state.ex.has(code)?state.ex.delete(code):state.ex.add(code);
+    applyState(); persist();
   });
 });
+
 document.getElementById('resetBtn').addEventListener('click',()=>{
-  doneSet.clear();
-  document.querySelectorAll('.card.done').forEach(c=>{c.classList.remove('done');
-    const b=c.querySelector('.check'); b.setAttribute('aria-pressed','false'); b.querySelector('.lbl-text').textContent='Mark done';});
-  document.querySelectorAll('.day.done').forEach(d=>d.classList.remove('done'));
-  refresh();
+  state.ex.clear(); state.days.clear(); applyState(); persist();
 });
+
+function initSync(){
+  const fb=window.__KNEE_FB;
+  if(!fb){ applyState(); return; }            // Firebase off → in-memory only
+  fb.ref.onSnapshot(snap=>{
+    const d=(snap && snap.exists)? snap.data() : {};
+    state.ex=new Set(d.exercises||[]);
+    state.days=new Set((d.days||[]).map(String));
+    applyState();
+  }, err=>console.warn('Knee progress sync error:',err));
+}
 
 /* =========================================================
    THREE.JS  — single renderer, many viewports
@@ -497,7 +558,7 @@ function setPaused(p){
 }
 document.getElementById('animToggle').addEventListener('click',()=>setPaused(!paused));
 
-refresh();
+initSync();
 if(window.THREE){ initThree(); } else {
   window.addEventListener('load',()=>{ window.THREE? initThree() : document.querySelectorAll('.fig-fallback').forEach(f=>f.style.display='grid'); });
 }

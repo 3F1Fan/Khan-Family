@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Shared knee-programme progress, stored in a single document.
+    // No login: anyone with the site can read/write THIS one doc only.
+    match /progress/knee {
+      allow read, write: if true;
+    }
+
+    // Everything else is locked down.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
