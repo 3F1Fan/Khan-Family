@@ -10,3 +10,12 @@
   width: min(60vw, 320px);
   height: auto;
 }
+
+.version {
+  position: fixed;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  font-size: 0.8rem;
+  color: #888;
+  font-variant-numeric: tabular-nums;
+}
