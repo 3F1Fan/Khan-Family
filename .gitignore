@@ -17,3 +17,9 @@ npm-debug.log*
 # Firebase
 .firebase
 firebase-debug.log
+
+# Service account keys / secrets — NEVER commit these
+*serviceAccount*.json
+firebase-key.json
+service-account.json
+.secrets/
