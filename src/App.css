@@ -1,3 +1,87 @@
+/* ===== Home screen (app tiles) ===== */
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.25rem;
+  padding: 3rem 1.25rem;
+  background: linear-gradient(165deg, #24344a 0%, #131c28 60%, #0c121a 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.home-top h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2rem, 7vw, 3rem);
+  margin: 0 0 0.35rem;
+}
+.home-top p {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.tiles {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  width: min(92vw, 640px);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  aspect-ratio: 1 / 1;
+  justify-content: center;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  padding: 1rem;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+.tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent, #fff);
+  background: rgba(255, 255, 255, 0.1);
+}
+.tile-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+.tile-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.tile-tag {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.tile-soon {
+  cursor: default;
+  border-style: dashed;
+  opacity: 0.5;
+}
+.tile-soon:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.home-version {
+  position: fixed;
+  bottom: 0.6rem;
+  left: 0.75rem;
+  font-size: 0.72rem;
+  opacity: 0.45;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Talking Hearts ===== */
 .th {
   min-height: 100vh;
   display: flex;
@@ -9,6 +93,22 @@
   background: radial-gradient(120% 120% at 50% 0%, #ff8fa3 0%, #c9184a 45%, #7a0f2b 100%);
   color: #fff;
   text-align: center;
+}
+
+.th-home {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.th-home:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .th-top {
