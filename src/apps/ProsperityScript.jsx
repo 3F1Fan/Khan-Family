@@ -2,8 +2,25 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { SCRIPT } from './prosperityScript'
 import { version } from '../../package.json'
 
+const VOICE_KEY = 'prosperity-voice'
+// Names that tend to mark higher-quality, more human-sounding voices.
+const QUALITY = ['natural', 'neural', 'premium', 'enhanced', 'siri', 'google']
+
+function scoreVoice(v) {
+  const n = (v.name || '').toLowerCase()
+  let s = 0
+  QUALITY.forEach((k, i) => {
+    if (n.includes(k)) s += (QUALITY.length - i) * 10
+  })
+  if (v.lang === 'en-ZA') s += 8
+  else if (v.lang === 'en-GB') s += 5
+  else if (v.lang === 'en-US') s += 4
+  else if ((v.lang || '').startsWith('en')) s += 2
+  if (!v.localService) s += 1
+  return s
+}
+
 export default function ProsperityScript({ navigate }) {
-  // Flatten every spoken line into one ordered list for playback + highlighting.
   const lines = useMemo(() => {
     const out = []
     SCRIPT.sections.forEach((s, si) => s.lines.forEach((text, li) => out.push({ si, li, text })))
@@ -14,7 +31,39 @@ export default function ProsperityScript({ navigate }) {
   const [status, setStatus] = useState('idle') // idle | playing | paused
   const [current, setCurrent] = useState(-1)
   const [rate, setRate] = useState(1)
+  const [voices, setVoices] = useState([])
+  const [voiceURI, setVoiceURI] = useState(null)
   const runRef = useRef(0)
+  const rateRef = useRef(1)
+  const voiceRef = useRef(null)
+  rateRef.current = rate
+
+  // Load and rank the English voices the device offers.
+  useEffect(() => {
+    if (!supported) return
+    const load = () => {
+      const all = window.speechSynthesis
+        .getVoices()
+        .filter((v) => (v.lang || '').toLowerCase().startsWith('en'))
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a))
+      if (!all.length) return
+      setVoices(all)
+      let saved = null
+      try {
+        saved = localStorage.getItem(VOICE_KEY)
+      } catch {
+        /* ignore */
+      }
+      const pick = all.find((v) => v.voiceURI === saved) || all[0]
+      setVoiceURI(pick.voiceURI)
+      voiceRef.current = pick
+    }
+    load()
+    window.speechSynthesis.onvoiceschanged = load
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null
+    }
+  }, [supported])
 
   const stop = useCallback(() => {
     runRef.current += 1
@@ -39,7 +88,12 @@ export default function ProsperityScript({ navigate }) {
         }
         setCurrent(i)
         const u = new SpeechSynthesisUtterance(lines[i].text)
-        u.rate = rate
+        u.rate = rateRef.current
+        u.pitch = 1
+        if (voiceRef.current) {
+          u.voice = voiceRef.current
+          u.lang = voiceRef.current.lang
+        }
         u.onend = () => {
           if (run !== runRef.current) return
           i += 1
@@ -54,7 +108,7 @@ export default function ProsperityScript({ navigate }) {
       }
       step()
     },
-    [supported, lines, rate],
+    [supported, lines],
   )
 
   const onMainButton = () => {
@@ -70,10 +124,20 @@ export default function ProsperityScript({ navigate }) {
 
   const changeRate = (r) => {
     setRate(r)
-    if (status !== 'idle') playFrom(current < 0 ? 0 : current) // restart current line at new speed
+    if (status !== 'idle') playFrom(current < 0 ? 0 : current)
   }
 
-  // Stop speech if the user leaves the page.
+  const changeVoice = (uri) => {
+    setVoiceURI(uri)
+    voiceRef.current = voices.find((v) => v.voiceURI === uri) || null
+    try {
+      localStorage.setItem(VOICE_KEY, uri)
+    } catch {
+      /* ignore */
+    }
+    if (status !== 'idle') playFrom(current < 0 ? 0 : current)
+  }
+
   useEffect(() => () => { if (supported) window.speechSynthesis.cancel() }, [supported])
 
   return (
@@ -106,9 +170,30 @@ export default function ProsperityScript({ navigate }) {
               </button>
             ))}
           </div>
+          {voices.length > 0 && (
+            <select
+              className="ps-voice"
+              value={voiceURI || ''}
+              onChange={(e) => changeVoice(e.target.value)}
+              title="Choose the most natural voice on your device"
+            >
+              {voices.map((v) => (
+                <option key={v.voiceURI} value={v.voiceURI}>
+                  {v.name} ({v.lang})
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       ) : (
         <p className="ps-note">Read-aloud isn’t supported in this browser — the script is below to read.</p>
+      )}
+
+      {supported && (
+        <p className="ps-tip">
+          Tip: for the most human voice, pick one marked <b>Enhanced / Natural / Siri / Google</b> above.
+          Those live on your device — iPhone &amp; Mac and recent Chrome have the best ones.
+        </p>
       )}
 
       <div className="ps-script">

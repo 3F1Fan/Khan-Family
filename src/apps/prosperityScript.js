@@ -27,11 +27,14 @@ export const SCRIPT = {
       ],
     },
     {
-      cue: 'If it fits — bringing in the Albaraka track record. [Verify all figures against the latest fact sheet.]',
+      cue: 'If it fits — the Albaraka track record across the range. [Verify every figure against each fund’s latest fact sheet; use since-inception where a fund is under ten years old.]',
       lines: [
-        'And this isn’t new territory for us. Old Mutual’s Albaraka range is one of the longest-running Shari’ah offerings in South Africa — we’ve been managing Shari’ah money through multiple market cycles, not just the last few good years.',
-        'Over the last five years, the Albaraka fund has delivered around [X] percent a year, and over ten years around [Y] percent a year — [ahead of, or in line with] its benchmark — and it has done that while staying fully Shari’ah-compliant and screened throughout.',
-        'But the point I’d draw out isn’t the number itself — it’s the consistency. A track record spanning decades tells you this is a discipline we’ve built genuine expertise in over time, not a product we’ve recently launched to meet demand.',
+        'And this isn’t new territory for us. Old Mutual’s Albaraka range has been running for decades — we’ve managed Shari’ah money through multiple market cycles, not just the last few good years.',
+        'What I like about the range is that it maps onto that same spectrum. There are three funds, for three different appetites for risk.',
+        'The Albaraka Income Fund, for clients who want stability and a steady income — around [X] percent a year over five years, and [X] percent over ten.',
+        'The Albaraka Balanced Fund, for a moderate, diversified approach — around [Y] percent over five years, and [Y] percent over ten.',
+        'And the Albaraka Equity Fund, our longest-running and most growth-oriented — around [Z] percent over five years, and [Z] percent over ten.',
+        'But the point isn’t any single number — it’s the consistency. A client can sit anywhere on that risk spectrum, from income right through to equity, and still be fully Shari’ah-compliant and screened throughout.',
       ],
     },
     {
