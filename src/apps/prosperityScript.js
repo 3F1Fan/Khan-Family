@@ -7,7 +7,7 @@ export const SCRIPT = {
   title: 'Prosperity',
   subtitle: 'Mo’s talking points · Old Mutual Wealth · Shari’ah proposition',
   disclaimer:
-    'Replace every [bracketed] figure with the exact, current numbers from the latest Albaraka fund fact sheet (MDD), and have compliance sign off before use. Past performance is not a guide to future performance.',
+    'Performance figures are annualised returns for the B1 class from the fund table provided (5-year; no 10-year figure was available). Confirm the “as at” date against the current fact sheet and clear with compliance before use. Past performance is not a guide to future performance.',
   sections: [
     {
       cue: 'Imtiaz: “…what are you seeing in the market today? How are the needs of Shari’ah investors changing?”',
@@ -27,14 +27,14 @@ export const SCRIPT = {
       ],
     },
     {
-      cue: 'If it fits — the Albaraka track record across the range. [Verify every figure against each fund’s latest fact sheet; use since-inception where a fund is under ten years old.]',
+      cue: 'The Albaraka track record (B1 class · 5-year annualised). [Confirm the “as at” date against the current fact sheet.]',
       lines: [
         'And this isn’t new territory for us. Old Mutual’s Albaraka range has been running for decades — we’ve managed Shari’ah money through multiple market cycles, not just the last few good years.',
-        'What I like about the range is that it maps onto that same spectrum. There are three funds, for three different appetites for risk.',
-        'The Albaraka Income Fund, for clients who want stability and a steady income — around [X] percent a year over five years, and [X] percent over ten.',
-        'The Albaraka Balanced Fund, for a moderate, diversified approach — around [Y] percent over five years, and [Y] percent over ten.',
-        'And the Albaraka Equity Fund, our longest-running and most growth-oriented — around [Z] percent over five years, and [Z] percent over ten.',
-        'But the point isn’t any single number — it’s the consistency. A client can sit anywhere on that risk spectrum, from income right through to equity, and still be fully Shari’ah-compliant and screened throughout.',
+        'What I like is that the range maps onto that same spectrum, and the numbers back it up.',
+        'The Albaraka Income Fund, for stability and a steady income, has returned around 7.3 percent a year over five years.',
+        'The Albaraka Balanced Fund, moderate and diversified, around 10.9 percent a year over five years.',
+        'And the Albaraka Equity Fund, our most growth-oriented, around 13.2 percent a year over five years.',
+        'But the point isn’t any single number — it’s the consistency across the whole range. A client can sit anywhere on that spectrum, from income right through to equity, and still be fully Shari’ah-compliant and screened throughout.',
       ],
     },
     {
