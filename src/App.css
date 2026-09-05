@@ -251,3 +251,132 @@
   opacity: 0.55;
   font-variant-numeric: tabular-nums;
 }
+
+/* ===== Prosperity script (read-aloud) ===== */
+.ps {
+  min-height: 100vh;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 4.5rem 1.25rem 5rem;
+  background: #0f1720;
+  color: #e8eef0;
+}
+.ps-home {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.ps-home:hover { background: rgba(255, 255, 255, 0.2); }
+
+.ps-top { text-align: center; margin-bottom: 1.5rem; }
+.ps-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  margin: 0 0 0.35rem;
+  color: #fff;
+}
+.ps-sub { margin: 0; opacity: 0.65; font-size: 0.9rem; }
+
+/* playback bar */
+.ps-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.75rem;
+  margin: 0 0 1.5rem;
+  background: rgba(15, 23, 32, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+.ps-play {
+  background: #0f7d83;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ps-play:hover { filter: brightness(1.08); }
+.ps-stop {
+  background: transparent;
+  color: #e8eef0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.ps-stop:disabled { opacity: 0.35; cursor: default; }
+.ps-speed { display: flex; gap: 0.3rem; margin-left: 0.25rem; }
+.ps-rate {
+  background: transparent;
+  color: #9fb0b4;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.ps-rate.on { background: #0f7d83; color: #fff; border-color: #0f7d83; }
+
+.ps-note { text-align: center; opacity: 0.7; font-size: 0.9rem; }
+
+/* script */
+.ps-section { margin: 0 0 1.75rem; }
+.ps-cue {
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  color: #6fb7bb;
+  border-left: 3px solid #0f7d83;
+  padding: 0.4rem 0 0.4rem 0.85rem;
+  margin: 0 0 0.9rem;
+  font-style: italic;
+}
+.ps-line {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  margin: 0 0 0.7rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.ps-line:hover { background: rgba(255, 255, 255, 0.05); }
+.ps-line.on {
+  background: rgba(15, 125, 131, 0.28);
+  box-shadow: inset 3px 0 0 #2bd4dc;
+}
+
+.ps-disclaimer {
+  margin: 2rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #f2c94c;
+  background: rgba(242, 201, 76, 0.08);
+  border: 1px solid rgba(242, 201, 76, 0.3);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.ps-version {
+  display: block;
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  opacity: 0.4;
+}
